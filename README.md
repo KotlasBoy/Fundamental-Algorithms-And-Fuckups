@@ -1,2 +1,2 @@
-# Funamental-Algorithms-And-Fuckups
+# Fundamental-Algorithms-And-Fuckups
 dedicated to Ilya Irbitsky
