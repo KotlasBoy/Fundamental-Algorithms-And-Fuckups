@@ -250,3 +250,5 @@ enum error_state to_num(char* word, long int* res, int base){
         *res  = -*res; 
     return DONE;
 }
+
+//line for git?

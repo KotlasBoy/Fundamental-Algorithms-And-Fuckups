@@ -279,17 +279,6 @@ enum error_state to_double(char* word, double* res){
     return DONE;
 }
 
-
-/*int permutations(double* a, double* b, double* c, double* epsilon){
-    //здесь могла быть проверка на NULL
-    if(*a - *b < *epsilon && *a - *c < *epsilon && *b - *c < *epsilon)
-        return 1;
-    if(*a - *b < *epsilon || *a - *c < *epsilon || *b - *c < *epsilon)
-        return 3;
-    return 6;
-}*/
-
-
 enum amount_of_solutions find_root(double* epsilon, double* a, double* b, double* c, my_Pair* placement){
 
     if(fabs(*a) < *epsilon && fabs(*b) < *epsilon){
