@@ -2,7 +2,7 @@
 #include <string.h>     //strlen
 #include <limits.h>     //type_limits
 #include <math.h>       //HUGE_VAL; fabs  gcc fird_task.c -lm
-#include <stdlib.h>
+#include <stdlib.h>     //strtod
 #include <float.h>      //DBL_MAX
 
 #define ABS(x) ((x) >=0 ? (x) : -1*(x))
