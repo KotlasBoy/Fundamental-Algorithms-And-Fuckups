@@ -4,6 +4,8 @@
 #include <limits.h>
 #include <ctype.h>      //isdigit()
 
+#define BUFFER_SIZE 100
+
 enum my_bool{FALSE, TRUE};
 
 enum error_state{
@@ -30,13 +32,13 @@ int main(int argc, char* argv[]){
     long int curr_number = 0, max_decimal_number = 0;
     enum my_bool valid_nums_cnt = FALSE; 
     char * input_buffer = NULL;
-    input_buffer = (char*) malloc(sizeof(char) * 101);      //100 + 1
+    input_buffer = (char*) malloc(sizeof(char) * (BUFFER_SIZE + 1));      //100 + 1
     if (input_buffer == NULL){
         printf("Memory wasn't allocated\n");
         return INVALID_MEMORY;
     }
 
-    while(scanf("%100s", input_buffer)){
+    while(scanf("%100s", input_buffer)){                //очищать буффер
         if(strcmp("Stop", input_buffer) == 0){
             if (valid_nums_cnt){
                 printf("%ld\n", max_decimal_number);        //FIXME: REMOVE THIS LINE
@@ -61,6 +63,12 @@ int main(int argc, char* argv[]){
             }
             valid_nums_cnt = TRUE;
         }
+        if(strlen(input_buffer) == BUFFER_SIZE){                //Buffer_clean added
+            int curr_char = 0;
+            while((curr_char = getchar() != '\n')){
+            }
+        }
+
     }
 
     free(input_buffer);

@@ -29,7 +29,7 @@ typedef struct{
     double second;
 } my_Pair;
 
-enum error_state to_long_int(char* word, long int*  res);
+enum error_state to_long_int(char* word, long long int*  res);
 enum error_state to_double(char* word, double* res);
 enum error_state double_triangle_inequality(double* epsilon, double* one, double* two, double* three, enum my_bool* result);
 
@@ -60,7 +60,7 @@ int main(int argc, char* argv[]){
 
             if(!(convert_check(to_double(argv[2], &q_epsilon)) && convert_check(to_double(argv[3], &a)) &&
             convert_check(to_double(argv[4], &b)) && convert_check(to_double(argv[5], &c)))){
-                printf("Invalid input\n");
+                //printf("Invalid input\n");
                 return INVALID_INPUT;
             }
 
@@ -69,8 +69,7 @@ int main(int argc, char* argv[]){
                 return WRONG_PARAMETERS;
             }
             
-            //permutations(&a, &b, &c, &epsilon);
-            int perm_cnt = 6;
+            const int perm_cnt = 6;
             my_Pair results[6];
             int valid_num[6];
             char curr_index = 0;
@@ -78,12 +77,12 @@ int main(int argc, char* argv[]){
             for(int i = 0; i < perm_cnt; ++i){
                 valid_num[i] = find_root(&q_epsilon, &a, &b, &c, &(results[i]));
                 if(i % 2 == 0){
-                    double btw = b;
+                    double btw = b;     //swap коэффициентов
                     b = c;
                     c = btw;
                 }
                 else{
-                    double btw = b;
+                    double btw = b;     //swap коэффициентов
                     b = a;
                     a = btw;
                 }
@@ -103,17 +102,19 @@ int main(int argc, char* argv[]){
                 return WRONG_PARAMETERS_NUMBER;
             }
 
-            long int first = 0, second = 0;
+            long long int first = 0, second = 0;
 
             if(! (convert_check(to_long_int(argv[2], &first)) && convert_check(to_long_int(argv[3], &second)))){
                 return INVALID_INPUT;
             }
-            
-            if (first % second == 0){
-                printf("True, %ld is divided by %ld\n", first, second);
+            if (labs(second) == 0){
+                printf("CAn't divide on zero\n");
+            }
+            else if (first % second == 0){
+                printf("True, %lld is divided by %lld\n", first, second);
             }
             else{
-                printf("False, %ld is NOT divided by %ld\n", first, second);
+                printf("False, %lld is NOT divided by %lld\n", first, second);
             }
             return DONE;
         
@@ -134,16 +135,19 @@ int main(int argc, char* argv[]){
             switch (double_triangle_inequality(&epsilon, &one, &two, &three, &result)){
                 case DONE:
                     if (result)
-                        printf("Triangle exists\n");
+                        printf("Right triangle exists\n");
                     else
-                        printf("Triangle doesn't exist\n");
+                        printf("Right triangle doesn't exist\n");
                     return DONE;
+
                 case OVERFLOW:
                     printf("Overflov\n");
                     return OVERFLOW;
+
                 case WRONG_PARAMETERS:
                     printf("Wrong  parameters\n");
                     return WRONG_PARAMETERS;
+                    
                 default:
                     break;
             }
@@ -173,7 +177,7 @@ enum my_bool convert_check(enum error_state condition){
     return TRUE;
 }
 
-enum error_state double_triangle_inequality(double* epsilon, double* one, double* two, double* three, enum my_bool* result){
+enum error_state double_triangle_inequality (double* epsilon, double* one, double* two, double* three, enum my_bool* result){
     if (epsilon == NULL || one == NULL || two == NULL || three == NULL){
         *result = FALSE;
         return NULL_PTR;
@@ -183,11 +187,11 @@ enum error_state double_triangle_inequality(double* epsilon, double* one, double
         return WRONG_PARAMETERS;
     }
 
-    if(*one <= (double)0 || *two <= (double)0 || *three <= (double)0){
+    if(*one <-*epsilon || *two < -*epsilon || *three < -*epsilon){       // < 0
         return WRONG_PARAMETERS;
     }
 
-    //*one == min; *two == middle; *three == max
+    //*one == min; *two == middle; *three == max        //primitive sort
     if (*one - *two > *epsilon){     // *one > *two
         double btw = *two;
         *two = *one;
@@ -204,19 +208,23 @@ enum error_state double_triangle_inequality(double* epsilon, double* one, double
         *three = btw;
     }
     
-    if ((*one > DBL_MAX - *two)){
+    if (fabs(*three - *two) < *epsilon){
+        *result = FALSE;
+    }
+
+    else if (*three > DBL_MAX / *three || *one * *one > DBL_MAX - *two * *two) {
         return OVERFLOW;
     }
-    if ((*one + *two) - *three > *epsilon)
+
+    if (*three * *three - *one * *one - *two * *two < *epsilon)
         *result = TRUE;
     else   
         *result = FALSE;
     return DONE;
-    
 }
 
 
-enum error_state to_long_int(char* word, long int* res){
+enum error_state to_long_int(char* word, long long int* res){
 
     if (word == NULL || res == NULL){       //NULL check
         return NULL_PTR;
@@ -281,18 +289,19 @@ enum error_state to_double(char* word, double* res){
 
 enum amount_of_solutions find_root(double* epsilon, double* a, double* b, double* c, my_Pair* placement){
 
-    if(fabs(*a) < *epsilon && fabs(*b) < *epsilon){
+    if(fabs(*a) <= *epsilon && fabs(*b) <= *epsilon){
         placement->first = placement->first = -1.;
         return ZERO;
     }
 
-    if(fabs(*a)< *epsilon){
+    if(fabs(*a) < *epsilon){
         if (fabs(*c) < *epsilon)
             placement->first = placement->first = 0.;
         else
-            placement->first = placement->first = -*c / *b;
+            placement->first = placement->first = -(*c / *b);
         return ONE;
     }
+
     if(fabs(*b) < *epsilon){
         placement->first = sqrt(-*c / *a);
         placement->second = -1 * sqrt(-*c / *a);
@@ -300,20 +309,20 @@ enum amount_of_solutions find_root(double* epsilon, double* a, double* b, double
     }
     else {
         double discriminant = (*b * *b) - 4.0 * *a * *c;
-        if (discriminant < *epsilon){
+        if (discriminant < -*epsilon){
             placement->first = placement->second = -1;
             return ZERO;
         }
         else {
+            if(fabs(discriminant) <= *epsilon){
+
+                placement->first = -*b / (2. * *a);
+                placement->second = -*b  / (2. * *a);
+                return ONE;
+            }
             discriminant = sqrt(discriminant);
-            if(fabs(-*b + discriminant) < *epsilon){
-                placement->first = 0.;
-                placement->second = 0.;
-            }
-            else{
-                placement->first = (-*b + discriminant) / (2. * *a);
-                placement->second = (-*b - discriminant) / (2. * *a);
-            }
+            placement->first = (-*b + discriminant) / (2. * *a);
+            placement->second = (-*b - discriminant) / (2. * *a);
             return TWO;
         }
     }
