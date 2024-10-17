@@ -199,6 +199,7 @@ int main(int argc, char* argv[]){
 }
 
 
+
 error_state get_absolute_path(char* current_path, char* absolute_path){
 
     if (!current_path || !absolute_path){
@@ -214,6 +215,7 @@ error_state get_absolute_path(char* current_path, char* absolute_path){
     int curr_dir_len = strlen(current_dir);     //without \n
     int curr_path_len = strlen(current_path);
     int curr_elem = 0, valid_char_count = 0;
+    int delete_amount = 0;
 
     if(current_path[curr_path_len - 1] == '/'){     //file can't end with '/'
         return WRONG_PARAMETER;
@@ -240,26 +242,33 @@ error_state get_absolute_path(char* current_path, char* absolute_path){
                 return WRONG_PARAMETER;
             }
             
-            dirty_abs_path[curr_elem - 2] = '-';
-            while(dirty_abs_path[curr_elem] != '/'){
-                dirty_abs_path[curr_elem] = '\0';
-                --curr_elem;
-            }
-            dirty_abs_path[curr_elem] = '\0';
+            ++delete_amount;
+            dirty_abs_path[curr_elem] = dirty_abs_path[curr_elem - 1] = dirty_abs_path[curr_elem - 2] = '\0';
+            curr_elem -= 3;
         }
         //  /./ case
         else if (dirty_abs_path[curr_elem] == '.' && dirty_abs_path[curr_elem - 1] == '/'){
-            dirty_abs_path[curr_elem] = '\0';
-            --curr_elem;
-            dirty_abs_path[curr_elem] = '\0';
+            dirty_abs_path[curr_elem--] = '\0';
+            dirty_abs_path[curr_elem--] = '\0';
         }
-
+        //    dir//dir  case
         else if(dirty_abs_path[curr_elem] == '/' && dirty_abs_path[curr_elem - 1] == '/'){
-            dirty_abs_path[curr_elem] = '\0';
-            --curr_elem;
+            dirty_abs_path[curr_elem--] = '\0';
         }
-        ++valid_char_count;
-        --curr_elem;
+        else{
+            if(delete_amount > 0){
+                dirty_abs_path[curr_elem--] = '\0'; 
+                while(dirty_abs_path[curr_elem] != '/'){
+                    dirty_abs_path[curr_elem--] = '\0';
+                }
+                dirty_abs_path[curr_elem--] = '\0';
+                --delete_amount;
+            }
+            else{
+                ++valid_char_count;
+                --curr_elem;
+            }
+        }
     }
 
     if(valid_char_count + 1 > FILENAME_MAX){      
@@ -278,6 +287,7 @@ error_state get_absolute_path(char* current_path, char* absolute_path){
     free(dirty_abs_path);
     return COOL;
 }
+
 
 
 error_state is_valid_flag(char* flag, int* has_n, char* character){
