@@ -208,16 +208,17 @@ enum error_state double_triangle_inequality (double* epsilon, double* one, doubl
         *three = btw;
     }
     
-    if (fabs(*three - *two) < *epsilon){
+    /*if (fabs(*three - *two) < *epsilon){
         *result = FALSE;
     }
 
     else if (*three > DBL_MAX / *three || *one * *one > DBL_MAX - *two * *two) {
         return OVERFLOW;
-    }
+    }*/
 
-    if (*three * *three - *one * *one - *two * *two < *epsilon)
+    if (fabs(*three * *three - *one * *one - *two * *two) < *epsilon){
         *result = TRUE;
+    }
     else   
         *result = FALSE;
     return DONE;

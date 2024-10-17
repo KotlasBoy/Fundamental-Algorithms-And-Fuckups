@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,7 +13,9 @@ typedef enum error_state{
     FUCKUP,
     NULL_PTR,
     WRONG_PARAMETER,
-    OVERFLOW
+    OVERFLOW,
+    MEMORY_FUCKUP,
+    FILE_FUCKUP
 } error_state;
 
 error_state get_absolute_path(char* current_path, char* absolute_path);
@@ -59,8 +60,13 @@ int main(int argc, char* argv[]){
     FILE* output_file = NULL;
 
     char* absolute_input = (char*) malloc(sizeof(char) * (FILENAME_MAX + 1));
+    if(!absolute_input)
+        return MEMORY_FUCKUP;
     char* absolute_output = (char*) malloc(sizeof(char) * (FILENAME_MAX + 1));
-
+    if(!absolute_output){
+        free(absolute_input);
+        return MEMORY_FUCKUP;
+    }
     personal_errno = get_absolute_path(argv[2], absolute_input);
     if (personal_errno != COOL){
         free(absolute_input);
@@ -69,12 +75,18 @@ int main(int argc, char* argv[]){
     switch(personal_errno){
         case NULL_PTR:
             printf("Null-ptr was found in calculating first absolute path\n");
+            free(absolute_input);
+            free(absolute_output);
             return NULL_PTR;
         case OVERFLOW:
             printf("Overflow in calculating first absolute path\n");
+            free(absolute_input);
+            free(absolute_output);
             return OVERFLOW;
         case WRONG_PARAMETER:
             printf("Wrong path in calculating first absolute path\n");
+            free(absolute_input);
+            free(absolute_output);
             return WRONG_PARAMETER;
         case COOL:
             break;
@@ -125,7 +137,7 @@ int main(int argc, char* argv[]){
         }   
     }
 
-    printf("%s\n%s\n", absolute_input, absolute_output);        //FIXME: remove this line
+    //printf("%s\n%s\n", absolute_input, absolute_output);        //FIXME: remove this line
 
     if(strcmp(absolute_input, absolute_output) == 0){
         free(absolute_input);
@@ -135,10 +147,17 @@ int main(int argc, char* argv[]){
     }
 
     input_file = fopen(absolute_input, "r");
-    output_file = fopen(absolute_output, "w");
-    if(!input_file || !output_file){
+    if(!input_file){
         free(absolute_input);
         free(absolute_output);
+        printf("FILE OPEN fuckup\n");
+        return FILE_FUCKUP;
+    }
+    output_file = fopen(absolute_output, "w");
+    if(!output_file){
+        free(absolute_input);
+        free(absolute_output);
+        fclose(input_file);
         printf("Error during opening file\n");
         return NULL_PTR;
     }
@@ -186,71 +205,80 @@ error_state get_absolute_path(char* current_path, char* absolute_path){
         return NULL_PTR;
     }
 
-    char current_dir[FILENAME_MAX];
-    getcwd(current_dir, FILENAME_MAX - 1);
-    if (!current_dir){
+    char current_dir[FILENAME_MAX + 1];
+    getcwd(current_dir, FILENAME_MAX);
+    if (current_dir == NULL){
         return NULL_PTR;
     }
 
-    int curr_dir_len = strlen(current_dir);
+    int curr_dir_len = strlen(current_dir);     //without \n
     int curr_path_len = strlen(current_path);
-    int real_cp_beginning = 0;
-    
-    if (current_path[0] == '/'){        // already absolute 
+    int curr_elem = 0, valid_char_count = 0;
+
+    if(current_path[curr_path_len - 1] == '/'){     //file can't end with '/'
+        return WRONG_PARAMETER;
+    }    
+    if (current_path[0] == '/'){                    // already absolute
         strcpy(absolute_path, current_path);
         return COOL;
     }
 
-    else if(current_path[0] != '.'){
-        if (curr_dir_len + curr_path_len + 1 < FILENAME_MAX){
-            strcpy(absolute_path, current_dir);
-            strcat(absolute_path, "/");
-            strcat(absolute_path, current_path);
-            return COOL;
+    char* dirty_abs_path = (char*) malloc(sizeof(char) * (curr_dir_len + curr_path_len + 2));       // + / + \n
+    if(!dirty_abs_path)
+        return MEMORY_FUCKUP;
+
+    strcpy(dirty_abs_path, current_dir);           //get dirty absolute path with /../ or /./
+    strcat(dirty_abs_path, "/");                                                                                                           
+    strcat(dirty_abs_path, current_path);
+
+    curr_elem = curr_dir_len + curr_path_len - 1; //index of the last elem 
+    while(curr_elem > 0){
+        //  dir1/../dir2/  case
+        if(dirty_abs_path[curr_elem] == '.' &&  dirty_abs_path[curr_elem - 1] == '.'){
+            if(dirty_abs_path[curr_elem - 2] != '/'){
+                free(dirty_abs_path);
+                return WRONG_PARAMETER;
+            }
+            
+            dirty_abs_path[curr_elem - 2] = '-';
+            while(dirty_abs_path[curr_elem] != '/'){
+                dirty_abs_path[curr_elem] = '\0';
+                --curr_elem;
+            }
+            dirty_abs_path[curr_elem] = '\0';
         }
-        else{
-            return OVERFLOW;
+        //  /./ case
+        else if (dirty_abs_path[curr_elem] == '.' && dirty_abs_path[curr_elem - 1] == '/'){
+            dirty_abs_path[curr_elem] = '\0';
+            --curr_elem;
+            dirty_abs_path[curr_elem] = '\0';
+        }
+
+        else if(dirty_abs_path[curr_elem] == '/' && dirty_abs_path[curr_elem - 1] == '/'){
+            dirty_abs_path[curr_elem] = '\0';
+            --curr_elem;
+        }
+        ++valid_char_count;
+        --curr_elem;
+    }
+
+    if(valid_char_count + 1 > FILENAME_MAX){      
+        free(dirty_abs_path);
+        return OVERFLOW;
+    }
+
+    curr_elem = 0;
+    for(int i = 0; i <= (curr_dir_len + curr_path_len); ++i){
+        if (dirty_abs_path[i] != '\0'){
+            absolute_path[curr_elem] = dirty_abs_path[i];
+            ++curr_elem;
         }
     }
 
-    else if (current_path[0] == '.' && current_path[1] == '/'){        // working in current directory
-        if (curr_dir_len + curr_path_len - 1 < FILENAME_MAX){
-            strcpy(absolute_path, current_dir);
-            strcat(absolute_path, ++current_path);
-            return COOL;
-        }
-        else{
-            return OVERFLOW;
-        }
-    }  
-    else{
-        while(curr_path_len >= 2 && current_path[real_cp_beginning] == '.' && current_path[real_cp_beginning + 1] == '.'){
-            
-            do{
-                --curr_dir_len;
-                current_dir[curr_dir_len] = '\0';
-            }
-            while(curr_dir_len > 0 && current_dir[curr_dir_len - 1] != '/');
-
-            if (curr_dir_len == 0){
-                //we need to  remove more than we actually have
-                return WRONG_PARAMETER;
-            }
-
-            real_cp_beginning += 3;
-            curr_path_len -= 3;
-            if (curr_path_len <=0){
-                return WRONG_PARAMETER;
-            }
-        }
-        if(!(curr_dir_len + curr_path_len - 1 < FILENAME_MAX)){         // TODO:
-            return OVERFLOW;
-        }
-        strcpy(absolute_path, current_dir);
-        strcat(absolute_path, current_path + real_cp_beginning);
-        return COOL;
-    }     
+    free(dirty_abs_path);
+    return COOL;
 }
+
 
 error_state is_valid_flag(char* flag, int* has_n, char* character){
     if (!flag){
