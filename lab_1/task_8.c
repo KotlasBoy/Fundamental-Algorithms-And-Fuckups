@@ -334,7 +334,6 @@ void recursive_print_num_in_base(long int init_number, FILE* output_file, int ba
             //printf("%c", 'A' + reminder - 10);
         }
     }
-
 }
 
 error_state task_func(FILE* input_file, FILE* output_file){
