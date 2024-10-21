@@ -26,6 +26,7 @@ error_state task_func(FILE* input_file, FILE* output_file);
 void recursive_fprint_num_in_base(long int init_number, FILE* output_file, int base);
 
 
+//TODO: PARCE NEGATIVE NUMBERS AAAAAAAAAAAA
 int main(int argc, char* argv[]){
     if(argc != 3){
         printf("Wrong amount of arguments\n");
@@ -386,15 +387,7 @@ error_state task_func(FILE* input_file, FILE* output_file){
             biggest_char = '1';
         }
 
-        // невалидное число, есть сторонние символы. Simply skip the input of this number
-        if(!isalnum(current_input_char) && current_input_char != ' ' && current_input_char != '\n' && current_input_char != '\t'){      
-            curr_buffer_ptr = 0;
-            biggest_char = 0;
-            should_skip = TRUE; //скипаем до конца строки
-            continue;
-        }
-
-        if(isalnum(current_input_char)){     //валидный символ
+        if(isalnum(current_input_char) || curr_buffer_ptr == 0 && current_input_char == '-'){     //валидный символ
             if (curr_buffer_ptr >= NUM_LEN){  //переполнен буффер, точно переполнение
                 curr_buffer_ptr = 0;
                 should_skip = TRUE;
@@ -403,11 +396,21 @@ error_state task_func(FILE* input_file, FILE* output_file){
                 str_buffer[curr_buffer_ptr] = current_input_char;
                 ++curr_buffer_ptr;
 
-                if(current_input_char > biggest_char){      //наибольший символ
+                if(current_input_char > biggest_char && current_input_char != '-'){      //наибольший символ
                     biggest_char = current_input_char;
                 }
             }
         }
+
+        // невалидное число, есть сторонние символы. Simply skip the input of this number
+        if(!isalnum(current_input_char) && current_input_char != '-' && current_input_char != ' ' && current_input_char != '\n' && current_input_char != '\t'){      
+            curr_buffer_ptr = 0;
+            biggest_char = 0;
+            should_skip = TRUE; //скипаем до конца строки
+            continue;
+        }
+
+
     }
     free(str_buffer);
     return COOL;

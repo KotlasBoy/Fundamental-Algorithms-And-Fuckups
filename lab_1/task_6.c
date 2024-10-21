@@ -137,7 +137,7 @@ enum error_state sum_b(double* epsilon, double* res){   // FIXME: something wron
         prev_sum = curr_sum;
         curr_sum = 0.;
         for(double x = 0; fabs(x - edge) >= *epsilon; x += partition){
-            curr_sum += exp(-x * x / 2.0) * partition;
+            curr_sum += exp(-x * x * 0.5) * partition;     // лучше всегда умножать на 0.5
         }
         partition /= 2.;
     }

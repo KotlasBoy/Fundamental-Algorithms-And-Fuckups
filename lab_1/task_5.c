@@ -17,7 +17,7 @@ enum my_bool convert_check(enum error_state condition);
 
 enum error_state raw_a(double* epsilon, double* x, double* res);
 enum error_state raw_b(double* epsilon, double* x, double* res);
-enum error_state raw_c(double* epsilon, double* x, double* res);
+enum error_state raw_c(const double* epsilon, double* x, double* res);
 enum error_state raw_d(double* epsilon, double* x, double* res);
 
 int main(int argc, char* argv[]){
@@ -122,7 +122,7 @@ enum error_state raw_a(double* epsilon, double* x, double* result){
         *result = 0;
         while(fabs(curr_sum) > *epsilon && isfinite(*result)){
             *result += curr_sum;
-            curr_sum *= *x / n;
+            curr_sum *= *x / (n + 1);
             ++n;
         }
     }
@@ -151,7 +151,7 @@ enum error_state raw_b(double* epsilon, double* x, double* result){
     return DONE;
 }
 
-enum error_state raw_c(double* epsilon, double* x, double* result){
+enum error_state raw_c(const double* epsilon, double* x, double* result){
     if(epsilon == NULL || result == NULL || x == NULL){
         *result = 0.;
         return NULL_PTR;  
@@ -165,7 +165,7 @@ enum error_state raw_c(double* epsilon, double* x, double* result){
         *result = 0.;
         while(fabs(curr_sum) > *epsilon && isfinite(*result)){
             *result += curr_sum;
-            curr_sum *= (9 * (curr_n + 1) * *x * *x) / (3 * curr_n + 2);
+            curr_sum *= (9 * (curr_n + 1) * (curr_n + 1) * *x * *x) / ((3 * curr_n + 1) *(3 * curr_n + 2));
             ++curr_n;
         }
     }
@@ -177,17 +177,21 @@ enum error_state raw_d(double* epsilon, double* x, double* result){
         *result = 0.;
         return NULL_PTR;  
     }
-
-    if(fabs(*x) < *epsilon){       // x +- == 0.
-        *result = 1.;
+    if (fabs(*x) >= 1){
+        *result = INFINITY;
     }
     else{
-        double curr_sum = -*x * *x / 2.0, curr_n = 1;
-        *result = 0;
-        while(fabs(curr_sum) > *epsilon && isfinite(*result)){
-            *result += curr_sum;
-            curr_sum *= -((2 * curr_n + 1) * *x * *x) / (2* curr_n + 2);
-            ++curr_n;
+        if(fabs(*x) < *epsilon){       // x +- == 0.
+            *result = 1.;
+        }
+        else{
+            double curr_sum = -*x * *x / 2.0, curr_n = 1;
+            *result = 0;
+            while(fabs(curr_sum) > *epsilon && isfinite(*result)){
+                *result += curr_sum;
+                curr_sum *= -((2 * curr_n + 1) * *x * *x) / (2* curr_n + 2);
+                ++curr_n;
+            }
         }
     }
     return DONE;
