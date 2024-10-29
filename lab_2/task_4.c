@@ -28,17 +28,15 @@ typedef enum error_state{
 error_state first_part(my_bool * result, int count, ...);
 
 my_bool is_positive_pseudo_skalyar_product(double one_proj_x, double one_proj_y, double two_proj_x, double two_proj_y);
-/*
-void count_k_b(double zero_x, double zero_y, double one_x, double one_y, double* k, double* b, my_bool* x_is_const, my_bool* y_is_const);
-error_state is_valid_point(double zero_x, double one_x, double one_y, double current_x, double current_y, double k, double b, my_bool x_is_const, my_bool y_is_const, my_bool* clockwise);
-*/
 
 error_state fird_part(int count, int base, ...);
 
 error_state to_decimal_num(char* word, long int* res, int base);
 void recursive_print_num_in_base(long int init_number, int base);
 
-//TODO: test first part of the task, please
+
+
+//TODO: second subtask ASAP
 int main(int argc, char* argv[]){
     my_bool result = INIT;
     switch(first_part( &result, 6, 0., 2., 5., 0., 3., -3.)){      //  (&result, counter, x1, y1, x2, y2, x3, y3, ...)
@@ -79,7 +77,7 @@ int main(int argc, char* argv[]){
     result = INIT;
     switch(first_part( &result, 10, 1., 1., 2., 2., 5., 0., 1., -4., 1., 0.)){      //  (&result, counter, x1, y1, x2, y2, x3, y3, ...)
         case NULL_PTR:
-            printf("WP\n");
+            printf("WP\n"); 
             break;
         case WRONG_PARAMETER:
             printf("WP\n");
@@ -94,7 +92,7 @@ int main(int argc, char* argv[]){
             break;
     }
 
-    //TODO: There will be second part of the task. Maybe.
+    //TODO: There must be second part of the task. Maybe.
     
     switch(fird_part(4, 12, "9", "56", "66", "AA")){        //base = 12, true:   56, 66,           
         case NULL_PTR:
@@ -131,7 +129,6 @@ int main(int argc, char* argv[]){
 }
 
 
-//TODO: find x projection and y projection of the rib. not of the points?
 error_state  first_part(my_bool * result, int count, ...){
     if(!result){
         return NULL_PTR;
@@ -197,162 +194,8 @@ my_bool is_positive_pseudo_skalyar_product(double one_proj_x, double one_proj_y,
     return (one_proj_x * two_proj_y) - (two_proj_x * one_proj_y) > 0 ? TRUE : ( ((one_proj_x * two_proj_y) - (two_proj_x * one_proj_y) < 0) ? FALSE : INIT);
 }
 
-/*error_state first_part(my_bool * result, int count, ...){
-    if(!result){
-        return NULL_PTR;
-    }
-    if (count < 6 || count % 2 != 0){
-        return WRONG_PARAMETER; 
-    }
-    double zero_x = 0.0, zero_y = 0.0;
-    double one_x = 0.0, one_y = 0.0;
-    double current_x = 0.0, current_y = 0.0;
-    my_bool clockwise = INIT, x_is_const = FALSE, y_is_const = FALSE;
-    double k = 0.0, b = 0.0;        //y = kx + b
-    double extra_x = 0.0, extra_y = 0.0;
 
-    va_list item_ptr;
-    va_start (item_ptr, count);
-    
-    zero_x = va_arg(item_ptr, double);
-    extra_x = zero_x;
-    zero_y = va_arg(item_ptr, double);
-    extra_y = zero_y;
-    one_x = va_arg(item_ptr, double);
-    one_y = va_arg(item_ptr, double);
-    current_x = va_arg(item_ptr, double);
-    current_y = va_arg(item_ptr, double);
-    count -= 6;
-
-    count_k_b(zero_x, zero_y, one_x, one_y, &k, &b, &x_is_const, &y_is_const);
-    
-    error_state personal_errno = is_valid_point(zero_x, one_x, one_y, current_x, current_y, k, b, x_is_const, y_is_const, &clockwise);
-    
-    if(personal_errno != COOL){
-        va_end(item_ptr);
-        return personal_errno;
-    }
-    
-    while(count > 0){
-        zero_x = one_x;
-        zero_y = one_y;
-        one_x = current_x;
-        one_y = current_y;
-        current_x = va_arg(item_ptr, double);
-        current_y = va_arg(item_ptr, double);
-
-        count_k_b(zero_x, zero_y, one_x, one_y, &k, &b, &x_is_const, &y_is_const);
-        personal_errno = is_valid_point(zero_x, one_x, one_y, current_x, current_y, k, b, x_is_const, y_is_const, &clockwise);
-    
-        if(personal_errno != COOL){
-            va_end(item_ptr);
-            return personal_errno;
-        }
-        count -= 2;
-    }
-
-    zero_x = one_x;
-    zero_y = one_y;
-    one_x = current_x;
-    one_y = current_y;
-    current_x = extra_x;
-    current_y = extra_y;
-
-    count_k_b(zero_x, zero_y, one_x, one_y, &k, &b, &x_is_const, &y_is_const);
-    personal_errno = is_valid_point(zero_x, one_x, one_y, current_x, current_y, k, b, x_is_const, y_is_const, &clockwise);
-
-    va_end(item_ptr);
-    return personal_errno;
-}*/
-
-/*void count_k_b(double zero_x, double zero_y, double one_x, double one_y, double* k, double* b, my_bool* x_is_const, my_bool* y_is_const){
-    if(fabs(one_x - zero_x) < EPSILON){
-        *k = -1;
-        *b = 0;
-        *x_is_const = TRUE;
-    }
-    if(fabs(one_y - zero_y) < EPSILON){
-        *k = -1;
-        *b = 0;
-        *y_is_const = TRUE;
-    }
-    if(!*x_is_const || !*y_is_const){
-        if(one_x > zero_x){
-            *k = (one_y - zero_y) / (one_x - zero_x);
-            *b = zero_y - *k * zero_x;
-            *x_is_const = FALSE;
-            *y_is_const = FALSE;
-        }
-        else if (one_x < zero_x){
-            *k = (zero_y - one_y) / (zero_x - one_x);
-            *b = one_y - *k * one_x;
-            *x_is_const = FALSE;
-            *y_is_const = FALSE;
-        }
-    }
-}*/
-
-/*error_state is_valid_point(double zero_x, double one_x, double one_y, double current_x, double current_y, double k, double b, my_bool x_is_const, my_bool y_is_const, my_bool* clockwise){
-    if(!clockwise){
-        return NULL_PTR;
-    }
-    double expected_y = k * current_x + b;
-
-    if(x_is_const && fabs(current_x - one_x) < EPSILON){      //more than two points on 1 line (x == const) 
-        return WRONG_PARAMETER;
-    }
-
-    if(y_is_const && fabs(current_y - one_y) < EPSILON){      //more than two points on 1 line ( y == const)
-        return WRONG_PARAMETER;
-    }
-
-    if (fabs(expected_y - current_y) < EPSILON){        //more than two points on 1 line (y = kx + b)
-        return WRONG_PARAMETER;
-    }
-    
-
-    if(*clockwise == INIT){
-        *clockwise = expected_y > current_y ? TRUE : FALSE;
-        return COOL;
-    }
-    else{
-
-        if(*clockwise){
-            if(fabs(current_x - one_x) < EPSILON){
-                if (zero_x < one_x )
-                    return current_y < one_y ? COOL : FUCKUP;
-                else   
-                    return current_y < one_y ? FUCKUP : COOL;
-            }
-            if(current_x > one_x){
-                return expected_y > current_y ? COOL : FUCKUP;
-            }
-            if(current_x < one_x){
-                return expected_y > current_y ? FUCKUP : COOL;
-            }
-        }
-        else{
-            if(fabs(current_x - one_x) < EPSILON){
-                if (zero_x > one_x )
-                    return current_y > one_y ? COOL : FUCKUP;
-                else   
-                    return current_y > one_y ? FUCKUP : COOL;
-            }
-            if(current_x > one_x){
-                return expected_y < current_y ? COOL : FUCKUP;
-            }
-            if(current_x < one_x){
-                return expected_y < current_y ? FUCKUP : COOL;
-            }   
-        }
-
-        if((*clockwise && (expected_y > current_y)) || (!*clockwise && (expected_y < current_y)))
-            return COOL;
-        else   
-            return FUCKUP;
-    }
-}*/
-
+//TODO: second subtask, Gorner's method 
 
 error_state fird_part(int count, int base, ...){        //char* line
     if (count < 1 || base < 2 || base > 36 ){
