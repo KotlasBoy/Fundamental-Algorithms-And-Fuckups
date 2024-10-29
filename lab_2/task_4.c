@@ -29,6 +29,10 @@ error_state first_part(my_bool * result, int count, ...);
 
 my_bool is_positive_pseudo_skalyar_product(double one_proj_x, double one_proj_y, double two_proj_x, double two_proj_y);
 
+error_state second_part(double* result, long int amount, double x_point, long int power, ...);
+void fast_pow (double number, long int power, double* result);
+
+
 error_state fird_part(int count, int base, ...);
 
 error_state to_decimal_num(char* word, long int* res, int base);
@@ -92,8 +96,35 @@ int main(int argc, char* argv[]){
             break;
     }
 
-    //TODO: There must be second part of the task. Maybe.
-    
+    //////////////////////////////////////////////////////
+
+    double second_result = 0.0;
+    switch(second_part( &second_result, 4, 5., 2., 4., 3., 2., 1.)){       //117,2
+        case NULL_PTR:
+            printf("NULL_PTR found\n");
+            break;
+        case COOL:
+            printf("second function:  %lf\n", second_result);
+            break;
+        default:
+            break;
+    }
+
+    switch(second_part( &second_result, 5, 3., 7., -10., 3., 4., -1., 6.)){       //-18 630
+        case NULL_PTR:
+            printf("NULL_PTR found\n");
+            break;
+        case COOL:
+            printf("second function:  %lf\n", second_result);
+            break;
+        default:
+            break;
+    }
+
+
+
+    /////////////////////////////////////////////////////
+
     switch(fird_part(4, 12, "9", "56", "66", "AA")){        //base = 12, true:   56, 66,           
         case NULL_PTR:
             printf("shit found\n");
@@ -195,7 +226,43 @@ my_bool is_positive_pseudo_skalyar_product(double one_proj_x, double one_proj_y,
 }
 
 
-//TODO: second subtask, Gorner's method 
+error_state second_part(double* result, long int amount, double x_point, long int power, ...){
+    if(!result)
+        return NULL_PTR;
+
+    va_list(item_ptr);
+    va_start(item_ptr, power);
+    double koef = va_arg(item_ptr, double);
+    double exp_x = 0.;
+    *result = 0.;
+    fast_pow(x_point, power, &exp_x);
+
+    while(amount--){
+        *result += koef * exp_x;
+        exp_x /= x_point;
+        koef = va_arg(item_ptr, double);
+    }
+
+    va_end(item_ptr);
+    return COOL;
+
+}
+
+void fast_pow (double number, long int power, double* result){
+    char sign = power > 0 ? 1 : 0;
+    *result = 1.0;
+    power = abs(power);
+        while (power > 0){
+            if(power % 2){
+                *result = sign == 1 ? *result * number : *result / number;
+            }
+            number *= number;
+            power /= 2;
+        }
+
+}
+
+
 
 error_state fird_part(int count, int base, ...){        //char* line
     if (count < 1 || base < 2 || base > 36 ){
