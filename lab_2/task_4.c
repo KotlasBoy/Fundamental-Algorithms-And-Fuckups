@@ -40,8 +40,8 @@ void recursive_print_num_in_base(long int init_number, int base);
 
 
 
-//TODO: second subtask ASAP
-int main(int argc, char* argv[]){
+//TOD: second subtask ASAP
+int main(void){
     my_bool result = INIT;
     switch(first_part( &result, 6, 0., 2., 5., 0., 3., -3.)){      //  (&result, counter, x1, y1, x2, y2, x3, y3, ...)
         case NULL_PTR:
@@ -259,7 +259,6 @@ void fast_pow (double number, long int power, double* result){
             number *= number;
             power /= 2;
         }
-
 }
 
 
@@ -318,7 +317,7 @@ error_state to_decimal_num(char* word, long int* res, int base){
     my_bool minus = FALSE;
     my_bool only_nums_in_numerical_system = (base <= 10 ? TRUE : FALSE);
 
-    while(*ptr == ' ' || *ptr == '\n' || *ptr == '\t' || *ptr == '\v' || *ptr == '\r' || *ptr == '\b'){     //space skip
+    while(*ptr == ' ' || *ptr == '\n' || *ptr == '\t' || *ptr == '\v' || *ptr == '\r' || *ptr == '\b'){
         ++ptr;
     }
     
@@ -408,3 +407,4 @@ void recursive_print_num_in_base(long int init_number, int base){
             printf("%c", 'A' + reminder - 10);
     }
 }
+

@@ -30,7 +30,7 @@ int errno_parcer(error_state my_errno);
 int main() {
     double result = 0;
 
-    error_state personal_errno = dichotomy_method(-70, -60, 0.00000001, first_func, &result);
+    error_state personal_errno = dichotomy_method(-4, 4, 0.000001, first_func, &result);
     printf("1) ");
     if(errno_parcer(personal_errno))
         printf("Root is %lf\n", result);
@@ -101,7 +101,7 @@ int errno_parcer(error_state my_errno){
 }
 
 double first_func (double x ){
-    return (exp(x) - 4 * x - 256.5);
+    return (x - 1) * (x - 1);
 }
 double second_func (double x){
     return(sin(x) + 14.2);
