@@ -43,7 +43,7 @@ void recursive_print_num_in_base(long int init_number, int base);
 //TOD: second subtask ASAP
 int main(void){
     my_bool result = INIT;
-    switch(first_part( &result, 6, 0., 2., 5., 0., 3., -3.)){      //  (&result, counter, x1, y1, x2, y2, x3, y3, ...)
+    switch(first_part( &result, 10, -1., 1., 1., 1., 0.5, 0., 1., -1., -1., -1. )){      //  (&result, counter, x1, y1, x2, y2, x3, y3, ...)
         case NULL_PTR:
             printf("WP\n");
             break;
@@ -59,7 +59,7 @@ int main(void){
         default:
             break;
     }
-
+/*
     result = INIT;
     switch(first_part( &result, 10, 1., 1., 2., 2., 5., 0., 3., -2., 1., 0.)){      //  (&result, counter, x1, y1, x2, y2, x3, y3, ...)
         case NULL_PTR:
@@ -95,11 +95,11 @@ int main(void){
         default:
             break;
     }
-
+*/
     //////////////////////////////////////////////////////
-
+    /*
     double second_result = 0.0;
-    switch(second_part( &second_result, 4, 5., 2., 4., 3., 2., 1.)){       //117,2
+    switch(second_part( &second_result, 5, 32.9876, 4, 32., 32., 32., 32., 32., 32.)){       //117,2      //double* result, long int amount, double x_point, long int power
         case NULL_PTR:
             printf("NULL_PTR found\n");
             break;
@@ -110,7 +110,7 @@ int main(void){
             break;
     }
 
-    switch(second_part( &second_result, 5, 3., 7., -10., 3., 4., -1., 6.)){       //-18 630
+    switch(second_part( &second_result, 80, 3., 7., -10., 3., 4., -1., 6.)){       //-18 630
         case NULL_PTR:
             printf("NULL_PTR found\n");
             break;
@@ -119,13 +119,13 @@ int main(void){
             break;
         default:
             break;
-    }
+    }*/
 
 
 
     /////////////////////////////////////////////////////
-
-    switch(fird_part(4, 12, "9", "56", "66", "AA")){        //base = 12, true:   56, 66,           
+    /*
+    switch(fird_part(72, 16, "1", "6", "A", "F", "33", "55", "5B", "78", "88", "AB", "CD", "FF", "15F", "334", "38E", "492", "4ED", "7E0", "820", "B13", "B6E", "C72", "CCC", "EA1", "FA5", "FFF", "191A", "2A2B", "3C3C", "4444", "5556", "6667", "7F80", "8080", "9999", "AAAA", "BBBC", "C3C4", "D5D5", "E6E6", "FFFF", "1745E", "20EC2", "2ACAB", "2D02E", "30684", "3831F", "3E0F8", "42108", "47AE1", "55555", "62FCA", "689A3", "7278C", "76417", "7A427", "7FE00", "80200", "85BD9", "89AE5", "89BE9", "8D874", "9765D", "9D036", "AAAAB", "AF0B0", "B851F", "BDEF8", "C1F08", "C7CE1", "CF97C", "D5355")){        //base = 12, true:   56, 66,           
         case NULL_PTR:
             printf("shit found\n");
             break;
@@ -135,7 +135,7 @@ int main(void){
             break;
     }
 
-    switch(fird_part(6, 16, "1234", "67FDFD", "AB", "CD", "CCC", "444")){        //base = 16, true: AB, CD, CCC,
+     switch(fird_part(6, 16, "1234", "67FDFD", "AB", "CD", "CCC", "444")){        //base = 16, true: AB, CD, CCC,
         case NULL_PTR:
             printf("shit found\n");
             break;
@@ -154,12 +154,12 @@ int main(void){
         default:
             break;
     }
-
+ */
 
     return COOL;
 }
 
-
+    //FIXME: не работает для квадрата, трешанина
 error_state  first_part(my_bool * result, int count, ...){
     if(!result){
         return NULL_PTR;
@@ -251,7 +251,7 @@ error_state second_part(double* result, long int amount, double x_point, long in
 void fast_pow (double number, long int power, double* result){
     char sign = power > 0 ? 1 : 0;
     *result = 1.0;
-    power = abs(power);
+    power = labs(power);
         while (power > 0){
             if(power % 2){
                 *result = sign == 1 ? *result * number : *result / number;
@@ -272,7 +272,7 @@ error_state fird_part(int count, int base, ...){        //char* line
     va_start(item_ptr, base);
 
     long int init_number = 0, left_part = 0, right_part = 0;
-    int remainder = 0, power = 1;
+    long int remainder = 0, power = 1;
     char* current_line = NULL;
 
     while(count-- > 0){
@@ -280,7 +280,7 @@ error_state fird_part(int count, int base, ...){        //char* line
         current_line = va_arg(item_ptr, char*);
 
         error_state personal_errno = to_decimal_num(current_line, &init_number, base);    
-        if (personal_errno != COOL || init_number <= 0 || LONG_MAX / init_number < init_number){
+        if (personal_errno != COOL || init_number <= 0 || LONG_MAX / init_number < init_number){            //unsigned long 
             continue;
         }
         // x ^ 2
@@ -347,7 +347,7 @@ error_state to_decimal_num(char* word, long int* res, int base){
             *res += *ptr - '0';
         }
         else{
-            if (*ptr < '0' || *ptr > '9' && *ptr < 'A' || *ptr >= 'A' + base - 10 && *ptr < 'a' || *ptr >= 'a' + base - 10){
+            if ((*ptr < '0' || *ptr > '9') && (*ptr < 'A' || *ptr >= 'A' + base - 10) && (*ptr < 'a' || *ptr >= 'a' + base - 10)){
                 *res = 0;
                 return WRONG_PARAMETER;
             }
@@ -399,10 +399,10 @@ void recursive_print_num_in_base(long int init_number, int base){
             printf("%c", (char)('A' + labs(init_number) - 10));
     }
     else{
-        int reminder = labs(init_number) % base;
+        long int reminder = labs(init_number) % base;
         recursive_print_num_in_base(init_number / base, base);
         if(reminder < 10)
-            printf("%d", reminder);
+            printf("%ld", reminder);
         else
             printf("%c", 'A' + reminder - 10);
     }

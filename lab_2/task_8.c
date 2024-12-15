@@ -24,19 +24,19 @@ long int my_strlen(char* str);
 void line_reverse(char*);
 
 error_state is_valid_line(char *line, int base);
-error_state summ_all(int base, char** final_res, int amount_of_numbers, ...);
+error_state summ_all(int base, char** final_res, int* shift, int amount_of_numbers, ...);
 error_state summ_2_lines(int base, char* one, char* two);
 
 int main(void){
     char* res;
+    int  shift = 0;
     error_state status = COOL;
-
-    printf("test 1\n123 + FFFFFFFFFF + ABCFF; base = 16;\nexpected result: 100000ABE21");
-    status = summ_all(16, &res, 3, "123", "FFFFFFffFF", "abcff");
+    printf("test 1\n123 + 0000FFFFFFFFFF + abcff; base = 16;\nexpected result: 100000ABE21");
+    status = summ_all(16, &res, &shift, 3, "00", "0000", "000");
     switch(status){
         case COOL:
-            printf("\t result: %s\n", res);
-            free(res);
+            printf("\t result: %s\n", res + shift);
+            free(res);                                  //seg_fault error
             break;
         case WRONG_PARAMETER:
             printf("base mistake\n");
@@ -53,9 +53,10 @@ int main(void){
         default:
             break;
     }
-
+/*     
+    shift = 0;
     printf("test 2\nAHAHAHAHA + LOloLO + DOTA2; base = 36;\nexpected result: AHB3CRSD0");
-    status = summ_all(36, &res, 3, "AHAHAHAHA", "LOloLO", "DOTA2");
+    status = summ_all(36, &res, &shift, 3, "AHAHAHAHA", "LOloLO", "DOTA2");
     switch(status){
         case COOL:
             printf("\t result: %s\n", res);
@@ -76,9 +77,10 @@ int main(void){
         default:
             break;
     }
+    shift = 0;
 
     printf("test 3\n5 + abc; base = 10;\nexpected result: Spoiled line     ");
-    status = summ_all(10, &res, 2, "5", "abc");
+    status = summ_all(10, &res, &shift, 2, "5", "abc");
     switch(status){
         case COOL:
             printf("\t result: %s\n", res);
@@ -99,9 +101,10 @@ int main(void){
         default:
             break;
     }
-
+    shift = 0;
+    
     printf("test 4\n999999998 + 0 + 0 + 2 + 1; base = 10;\nexpected result: 1000000001");
-    status = summ_all(10, &res, 5, "999999998", "0", "0", "2", "1");
+    status = summ_all(10, &res, &shift, 5, "999999998", "0", "0", "2", "1");
     switch(status){
         case COOL:
             printf("\t result: %s\n", res);
@@ -122,10 +125,11 @@ int main(void){
         default:
             break;
     }
-
+    
+ */
 }
-
-error_state summ_all(int base, char** final_res, int amount_of_numbers, ...){
+//FIXME: UNSIGNED INT
+error_state summ_all(int base, char** final_res, int* shift, int amount_of_numbers, ...){
 
     if (base < 2 || base > 36)
         return WRONG_PARAMETER;
@@ -189,11 +193,8 @@ error_state summ_all(int base, char** final_res, int amount_of_numbers, ...){
                 if (!temporary_realloc){
                     va_end(item);
                     free(current_line);
-                    // FIXME: Do we need to free(current_result) ???
                 }
                 current_result = temporary_realloc;
-                    
-                
             }
 
             personal_errno = summ_2_lines(base, current_result, current_line);
@@ -206,8 +207,26 @@ error_state summ_all(int base, char** final_res, int amount_of_numbers, ...){
     }
 
     line_reverse(current_result);
-    *final_res = current_result;
 
+    my_bool all_zeroes = TRUE;
+    unsigned int i = 0;
+
+    for( ; current_result[i] != '\0'; ++i){
+        if (current_result[i] != '0'){
+            all_zeroes = FALSE;
+            break;
+        }
+    }
+
+    if(!all_zeroes){
+        while(current_result[*shift] == '0')
+            ++(*shift);       
+    }
+    else {
+        (*shift) += i - 1;
+    }
+
+    *final_res = current_result;
     //free(current_result);
     va_end(item);
     return COOL;
@@ -245,7 +264,7 @@ error_state summ_2_lines(int base, char* one, char* two){
         one[i++] = (tmp_sum % base < 10) ? ('0' + tmp_sum % base) : ('A' + tmp_sum % base - 10);
     }
     one[i] = '\0';
-    return COOL;
+        return COOL;
 }
 
 
@@ -285,3 +304,6 @@ long int my_strlen(char* line){
 	while (*end++);
 	return end - line - 1;
 }
+
+
+//FIXME: zeros in front of the number
