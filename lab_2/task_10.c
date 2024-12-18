@@ -22,7 +22,7 @@ int main(void) {
 
     unsigned long int power = 4;            // <== <== <== <== <== <== <== <== <== <==FIXME:   
 
-    personal_errno = parce_coefs(3.0, &result, power, -2.0, 1.0, -3.0, 0.0, 1.0);
+    personal_errno = parce_coefs(2.0, &result, power, 3.0, 3.0, 3.0, 3.0, 3.0);
     switch (personal_errno) {           
         case MEMORY_FUCKUP:
             printf("bad alloc\n");

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
+#include <limits.h>
 
 
 typedef enum error_state {          
@@ -17,15 +18,17 @@ long int negative_number_convertion(long int a);
 error_state  convert_from_dec_to_2_base(long int initial_number, long int parameter_r, char* result_line,  long int size_of_result_line);
 
 int main(void) {
+    //TODO:         PARSE LONG_MIN 
 
-    long int initial_number = -237;          
-     short int parameter_r = 4; //<-- <--  <-- <--  <-- <--  <-- <--  <-- <--  <-- <--  <-- <--
+    long int initial_number = LONG_MIN;          
 
-    long int size_of_result_line = 0;
-    if (initial_number == 0)
+    short int parameter_r = 5; //<-- <--  <-- <--  <-- <--  <-- <--  <-- <--  <-- <--  <-- <--
+
+    long int size_of_result_line = 20000;
+    /*if (initial_number == 0)
         size_of_result_line = 2;
     else
-        size_of_result_line = (long int) (log(labs(initial_number)) / log(2)) + 2;
+        size_of_result_line = (long int) (log(labs(initial_number)) / log(2)) + 2;*/
 
 
     char * result_line = (char*) malloc(sizeof(char) * size_of_result_line);
@@ -54,7 +57,7 @@ int main(void) {
 
     return COOL;
 }
-
+ 
 
 error_state  convert_from_dec_to_2_base(long int initial_number, long int parameter_r, char* result_line,  long int size_of_result_line){        
     
@@ -63,24 +66,28 @@ error_state  convert_from_dec_to_2_base(long int initial_number, long int parame
     result_line[pointer_to_the_end] = '\0';
     pointer_to_the_end = add(pointer_to_the_end, 1);
 
+
+    if (initial_number < 0) {
+        negative_sign = 1;
+    }
+
+    unsigned long int  i_n_ = negative_number_convertion(add(initial_number, 5));
+    i_n_ = add(i_n_, 5);
+
+
     if (parameter_r < 1 || parameter_r > 5 || size_of_result_line < 1)
         return WRONG_PAPAMETER;
 
     if(!result_line)
         return NULL_PTR;
 
-    if (initial_number < 0) {
-        initial_number = negative_number_convertion(initial_number);
-        negative_sign = 1;
-    }
-
     do {
-        current_digit = (initial_number & base_mask);
+        current_digit = (i_n_ & base_mask);
         result_line[pointer_to_the_end] = alphabet[current_digit];
 
         pointer_to_the_end = add(pointer_to_the_end, 1);
-        initial_number >>= parameter_r;
-    } while (initial_number);
+        i_n_ >>= parameter_r;
+    } while (i_n_);
 
     if (negative_sign) {
         result_line[pointer_to_the_end] = '-';
