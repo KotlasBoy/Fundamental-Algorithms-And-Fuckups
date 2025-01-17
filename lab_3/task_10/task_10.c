@@ -32,6 +32,7 @@ error_state parse_file_lines(FILE *input_file, FILE *output_file);
 void tree_file_print(Node *a, FILE *output_file, unsigned int shift);
 
 
+    //console arguments:    ./a.out input_file.txt output_file.txt
 int main(int argc, char* argv[]) {
     if (argc != 3) {
         printf("Wrong amount of parameters\n");

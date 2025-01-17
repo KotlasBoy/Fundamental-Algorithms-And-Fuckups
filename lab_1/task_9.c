@@ -274,7 +274,7 @@ int cmp(void const* a, void const* b){
         return (*(int*)a - *(int*)b);
 }
 
-int closest_element(int aim, int*array, int const* ar_size){
+int closest_element(int aim, int* array, int const* ar_size){
     int lb = -1, ub = *ar_size - 1;
     int current_index = 0;
     while(ub - lb != 1){

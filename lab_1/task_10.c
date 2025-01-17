@@ -180,6 +180,5 @@ void recursive_print_num_in_base(long int init_number, int base){
         else
             printf("%c", 'A' + reminder - 10);
     }
-
 }
 

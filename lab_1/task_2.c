@@ -5,7 +5,7 @@
 
 #define M_PI 3.14159265358979323846
 
-typedef enum error_state{
+typedef enum {
     COOL,
     FUCKUP,
     NULL_PTR,
@@ -25,7 +25,7 @@ typedef enum my_bool{
 
 void fast_pow (double number, long int power, double* result);
 error_state string_to_double(char* word, double* res);
-my_bool convert_check(enum error_state condition);
+my_bool convert_check( error_state condition);
 my_bool is_prime (long int number);
 
 error_state e_lim (const double* epsilon, double* res);
@@ -60,8 +60,8 @@ int main(int argc, char* argv[]){
         return 0;
     }
 
-    if (epsilon < 0. || epsilon > 1.){
-        printf("Wrong amount of parameters\n");
+    if (epsilon <= 0. || epsilon >= 1.){
+        printf("Wrong parameters\n");
         return WRONG_PARAMETER;
     }
 
@@ -206,7 +206,6 @@ error_state e_row (const double* epsilon,  double* res){
     }
     return COOL;
 }
-
 error_state e_ln (const double* epsilon,  double* res){
     if (!epsilon || !res)
         return NULL_PTR;
@@ -341,11 +340,9 @@ error_state sqrt_2_lim (const double * epsilon, double* res){
         return NULL_PTR;
 
     double current_num = -0.5, previous_num = 0;
-    int n = 1;
     do {
         previous_num = current_num;
         current_num = previous_num - pow(previous_num, 2) / 2.0 + 1;
-        ++n;
     }
     while (fabs(current_num - previous_num) >= *epsilon);
 
@@ -484,7 +481,7 @@ error_state string_to_double (char* word, double* res){
     return COOL;
 }
 
-my_bool convert_check (enum error_state condition){
+my_bool convert_check (error_state condition){
     switch(condition){
         case NULL_PTR:
             printf("NULL-ptr found\n");
@@ -516,3 +513,4 @@ my_bool is_prime (long int number){
     
     return TRUE;
 }
+
